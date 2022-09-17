@@ -1,7 +1,7 @@
-# hello world
 import random
-import re
-from unittest import result
+
+import Human
+import AIPlayer
 
 INFINITE = 9999
 
@@ -13,7 +13,8 @@ class TicTacToe:
         self.sizeBoard = 3
         self.movesTaken = 0
         self.seriToWin = 3
-        self.playerO = AIPlayer(self, 'O')
+        self.playerO = AIPlayer.AIPlayer(self, 'O')
+        self.playerX = Human.Human(self, 'X')
 
     def create_board(self):
         for i in range(self.sizeBoard):
@@ -116,6 +117,15 @@ class TicTacToe:
                 print(item, end=" ")
             print()
 
+    def checkCoorValid(self, row, col):
+        if (row < 0 or row >= self.sizeBoard):
+            return False
+        if (col < 0 or col >= self.sizeBoard):
+            return False
+        if (self.board[row][col] != '-'):
+            return False
+        return True
+
     def start(self):
         self.create_board()
 
@@ -126,14 +136,7 @@ class TicTacToe:
             self.show_board()
 
             if (player == 'X'):
-                # taking user input
-                row, col = list(
-                    map(int, input("Enter row and column numbers to fix spot: ").split()))
-                while (row < 0 or row >= self.sizeBoard or col < 0 or col >= self.sizeBoard or self.board[row][col] != '-'):
-                    print("Invalid turn, try again")
-                    row, col = list(
-                        map(int, input("Enter row and column numbers to fix spot: ").split()))
-                print()
+                row, col = self.playerX.takeTurn()
             else:
                 row, col = self.playerO.findBestMove()
             # fixing the spot
@@ -249,70 +252,7 @@ class TicTacToe:
         return result
 
 
-class AIPlayer:
-    def __init__(self, game, player) -> None:
-        self.game = game
-        self.player = player
-        self.opponent = 'X'
-        self.infinite = 999
-
-    def findRandMove(self):
-        row = random.randint(0, self.game.sizeBoard - 1)
-        col = random.randint(0, self.game.sizeBoard - 1)
-        while (self.game.board[row][col] != '-'):
-            row = random.randint(0, self.game.sizeBoard - 1)
-            col = random.randint(0, self.game.sizeBoard - 1)
-        return (row, col)
-
-    def bestPoint(self, player):
-        n = len(self.game.board)
-        maxPoint = 0
-        for i in range(n):
-            for j in range(n):
-                if self.game.board[i][j] == '-':
-                    self.game.board[i][j] = player
-
-                    point = self.game.pointOfcurrentState(self.player)
-                    if (point >= INFINITE):
-                        self.game.board[i][j] = '-'
-                        return INFINITE
-                    if (point > maxPoint):
-                        maxPoint = point
-                    self.game.board[i][j] = '-'
-
-        return maxPoint
-
-    def findBestMove(self):
-        result = self.findRandMove()
-        maxPoint = 0
-        n = len(self.game.board)
-        if (self.game.movesTaken == 0):
-            return (n // 2, n // 2)
-        for i in range(n):
-            for j in range(n):
-                if self.game.board[i][j] != '-':
-                    continue
-                # if self.game.board[i][j] == '-':
-                self.game.board[i][j] = self.player
-                point = 0;
-                point = self.bestPoint(self.player)
-
-                if (point >= INFINITE):
-                    self.game.board[i][j] = '-'
-                    return (i, j)
-                
-                if (point < maxPoint):
-                    continue
-                point -= self.bestPoint(self.opponent)
-                if (point >= maxPoint):
-
-                    maxPoint = point
-                    result = (i, j)
-                self.game.board[i][j] = '-'
-
-        return result
-
-
 # starting the game
-tic_tac_toe = TicTacToe()
-tic_tac_toe.start()
+if __name__ == "__main__":
+    game = TicTacToe()
+    game.start()
